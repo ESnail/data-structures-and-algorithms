@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>row col interchange（行列互换 - 天天爱消除）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .desc {
+      margin-bottom: 20px;
+    }
+    .div-con .grid-wrap {
+      margin: 10px auto;
+      position: relative;
+      height: auto;
+    }
+    .div-con .grid {
+      overflow: hidden;
+      background-color: #003;
+    }
+    .div-con .grid li {
+      list-style: none;
+      float: left;
+      -webkit-background-size: cover;
+      background-size: cover;
+      cursor: pointer;
+    }
+    .div-con .grid li.bg0 {
+      background-image: url('imgs/1.jpg');
+    }
+    .div-con .grid li.bg1 {
+      background-image: url('imgs/2.jpg');
+    }
+    .div-con .grid li.bg2 {
+      background-image: url('imgs/3.jpg');
+    }
+    .div-con .grid li.bg3 {
+      background-image: url('imgs/4.jpg');
+    }
+    .div-con .grid li.bg4 {
+      background-image: url('imgs/5.jpg');
+    }
+    .div-con .grid li.bg5 {
+      background-image: url('imgs/6.jpg');
+    }
+    .div-con .mark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, .8);
+    }
+    .div-con .mark .btn {
+      padding: 3px 5px;
+      cursor: pointer;
+      margin: 40% auto 0 auto;
+    }
+    .div-con .end {
+      color: #fff;
+      margin: 0 auto;
+      display: none;
+    }
+    .div-con .mark .btn:hover {
+      transform: scale(1.2);
+      transition: all linear .5s;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">row col interchange demo</h1>
+    <h1 class="desc">（行列互换 - 天天爱消除）</h1>
+    <p>score: <span id="score">0</span></p>
+    <div class="grid-wrap" id="grid_wrap">
+      <ul class="grid" id="grid"></ul>
+      <div class="mark" id="mark">
+        <button id="start_btn" class="btn">开始</button>
+        <p id="end" class="end">Game over！</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var gridEl = document.getElementById('grid');
+    var markEl = document.getElementById('mark');
+    var gridWrapEl = document.getElementById('grid_wrap');
+    var startBtnEl = document.getElementById('start_btn');
+    var scoreEl = document.getElementById('score');
+    var endEl = document.getElementById('end');
+    var score = 0;
+    var allGridCellEl = gridEl.getElementsByTagName('li');
+
+    var gridSize = 50; // 网格单元格大小
+    var gridNum = 7; // n*n的网格
+    var gridLen = gridNum * gridNum; // 单元格总个数
+    var result = [];
+
+    var rowColInterchangeDemo = {
+      init () {
+        this.createGrid();
+        this.findEl();
+
+        this.changeEl();
+        startBtnEl.onclick = function () {
+          markEl.style.zIndex = '-1';
+          // 每3分钟玩一次
+          setTimeout(function () {
+            markEl.style.zIndex = '10';
+            endEl.style.display = 'block';
+            score = 0;
+            scoreEl.innerHTML = score;
+          }, 1000*60*15); 
+        }
+      },
+      createGrid () {
+        let width = gridNum * (gridSize + 1) + 'px';
+        gridEl.style.width = width;
+        gridWrapEl.style.width = width;
+        // 动态生成li 
+        for (let i=0; i<gridLen; i++) {
+          let cellEl = document.createElement('li');
+          cellEl.style.width = gridSize + 'px';
+          cellEl.style.height = gridSize + 'px';
+          cellEl.className = 'bg' + Math.floor(Math.random()*6);
+          cellEl.index = i;
+          gridEl.appendChild(cellEl);
+        }
+      },
+      // 交换两个元素
+      changeEl () {
+        let prevEl = null;
+        let _this = this;
+        for (let i=0; i<allGridCellEl.length; i++) {
+          allGridCellEl[i].onclick = function () {
+            // 寻找当前元素的周围相邻元素
+            let currEl = this;
+            let currIndex = currEl.index;
+            let adjacentElArr = [];
+            findPrevNextEl(allGridCellEl, adjacentElArr, currIndex);
+            findPrevNextEl(_this.changeXY(allGridCellEl, gridNum), adjacentElArr, currIndex);
+
+            if (prevEl && adjacentElArr.indexOf(prevEl)!=-1 && prevEl.className!=currEl.className) {
+              this.style.opacity = 1;
+              let prevElClass = prevEl.getAttribute('class');
+              let currElClass = currEl.getAttribute('class');
+              prevEl.className = currElClass;
+              currEl.className = prevElClass;
+              prevEl = null;
+              rowColInterchangeDemo.remove();
+              scoreEl.innerHTML = score;
+            } else {
+              if (prevEl) {
+                prevEl.style.opacity = 0.7;
+              }
+              prevEl = this;
+              prevEl.style.opacity = 1;
+            }
+
+            // 寻找当前元素的上一个及下一个
+            function findPrevNextEl (allGridCellEl, arr, currIndex) {
+              for (let i=0; i<allGridCellEl.length; i++) {
+                if (currIndex == allGridCellEl[i].index) {
+                  // 前一个
+                  let prevEl = allGridCellEl[i-1];
+                  prevEl &&  arr.push(prevEl);
+                  let nextEl = allGridCellEl[i+1];
+                  nextEl && arr.push(nextEl);
+                }
+              }
+            }
+          }
+        }
+      },
+      // 行列互换
+      changeXY (arr, num) {
+        let newArr = [];
+        let iNow = 0;
+
+        // 递归
+        (function () {
+          if (num == iNow) {
+            return;
+          }
+          for (let i=0; i<arr.length; i++) {
+            if (i%num == iNow) {
+              newArr.push(arr[i]);
+            }
+          }
+          iNow++;
+          arguments.callee(); // 找到当前函数,再次执行，实现递归
+        })()
+        
+        return newArr;
+      },
+      // 寻找相邻的3个或以上
+      findEl () {
+        result = [];
+
+        getArr(allGridCellEl);
+        getArr(this.changeXY(allGridCellEl, gridNum));
+        //console.log(result);
+        
+        for (let i=0; i<allGridCellEl.length; i++) {
+          allGridCellEl[i].style.opacity = 0.7;
+        }
+        if (result.length) {
+          score += result.length;
+          this.remove();
+        }
+
+        // 得到满足条件的相邻的元素
+        function getArr (allGridCellEl) {
+          let iNum = 0;
+          let prevEl = allGridCellEl[0];
+          for (let i=0; i<allGridCellEl.length; i++) {
+            // 类名相等，不是第一列
+            if (prevEl.className == allGridCellEl[i].className && i%gridNum!=0) {
+              iNum++;
+              // 最后3以上个相等
+              if (i==allGridCellEl.length-1 && iNum >= 2) {
+                // iNum = 2
+                for (let j=0; j<=iNum; j++) {
+                  // j = 0 1 2
+                  // i = 48
+                  // allGridCellEl[46/47/48] 
+                  if (noSame(allGridCellEl[i-j])) {
+                    result.unshift(allGridCellEl[i-j])
+                  }
+                }
+                iNum = 0;
+              }
+            } else {
+              // iNum -> 2
+              if (iNum >= 2) { // 有3个相邻的
+                for (let j=0; j<=iNum; j++) {
+                  // j -> 0 1 2
+                  // i -> 6
+                  // allGridCellEl[3/4/5] 
+                  if (noSame(allGridCellEl[(i-1)-j])) {
+                    result.unshift(allGridCellEl[(i-1)-j])
+                  }
+                }
+              }
+              iNum = 0;
+            }
+            prevEl = allGridCellEl[i];
+          }
+        }
+
+        // 去重判断
+        function noSame (el) {
+          for (let i=0; i<result.length; i++) {
+            if (result[i] == el) {
+              return false;
+            }
+          }
+          return true;
+        }
+      },
+      remove () {
+        for (let i=0; i<result.length; i++) {
+          result[i].style.opacity = 1;
+        }
+
+        setTimeout(function () {
+          for (let i=0; i<result.length; i++) {
+            result[i].className = 'bg' + Math.floor(Math.random()*6);       
+          }
+          rowColInterchangeDemo.findEl();
+        }, 500);
+      }      
+    }
+    rowColInterchangeDemo.init();
+  </script>
+</body>
+</html>

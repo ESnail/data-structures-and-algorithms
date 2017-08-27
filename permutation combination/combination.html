@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>combination（组合）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .con {
+      margin: 10px auto;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">combination （组合）</h1>
+    <p class="desc">从m个数中取出n（m<=n）个，不需要按照顺序排列，一共有多少中情况</p>
+    <div id="con" class="con"></div>
+  </div>
+
+  <script>
+    var arr = ['A', 'B', 'C', 'D'];
+
+    var combination = {
+      init () {
+        //console.log(this.show(arr, 1)); // 4个值取3个排列：24
+        let n = 3;
+        console.log('数学组合', this.C(arr.length, n));
+        document.getElementById('con').innerHTML = arr + ': 取出'+n+'个的结果：<br/>' + this.show(arr, n);
+      },
+      // 程序实现：树形，统计叶子节点的个数
+      show (arr, num) {
+        let resultNum = 0;
+        let resultArr = [];
+        let iNow = 1; // 起始层次
+        
+        if (num==1) { // 取出一个
+          arr.push(result.length);
+          return arr; 
+        } 
+
+        change(arr, iNow+1, ''); // i=iNow: 取出下一层, '':组合
+        console.log('排列', resultArr);
+        resultArr = unique(resultArr);
+        console.log('组合', resultArr);
+        resultArr.push(resultArr.length);
+        return resultArr;
+
+        // 循环 + 递归
+        function change(arr, iNow, str) {
+          for (let i=0; i<arr.length; i++) {
+            let result = arr.concat(); // 对象，不产生引用关系，复制
+            let strClone = str; // 不影响下一次循环
+            strClone += result.splice(i, 1); // 将当前元素取出
+            if (iNow == num) { // 结束
+              resultNum += result.length;
+              for (let j=0; j<result.length; j++) {
+                resultArr.push(strClone + result[j]);
+              }
+            } else { // 递归，取出下一层
+              change(result, iNow+1, strClone); 
+            }
+          }
+        }
+
+        // 去重
+        function unique (arr) {
+          // 排序
+          for (let i=0; i<arr.length; i++) {
+            arr[i] = arr[i].split('').sort().join('');
+          }
+          // 去重
+          let result = [];
+          let obj = {};
+          for (let i=0; i<arr.length; i++) {
+            if (!obj[arr[i]]) {
+              result.push(arr[i]);
+              obj[arr[i]] = 1;
+            }
+          }
+          return result;
+        }
+      },
+      // 排列数学公式实现: A(m, n) = m的阶乘 / （m-n）的阶乘，0 的阶乘为1
+      A (m, n) {
+        return f(m) / f(m-n);
+
+        // 阶乘
+        function f(num) {
+          if (num<=1) {
+            return 1;
+          }
+          return num*f(num-1);
+        }
+      },
+      // 组合数学公式：C(m, n) = m的阶乘 / （（m-n）的阶乘 * n的阶乘）
+      C (m, n) {
+        return f(m) / (f(m-n)*f(n));
+
+        function f (num) {
+          if (num<=1) {
+            return 1;
+          }
+          return num*f(num-1);
+        }
+      }
+    }
+    combination.init();
+  </script>
+</body>
+</html>

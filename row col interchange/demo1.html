@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>row col interchange（行列互换 - 天天爱消除）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .grid {
+      margin: 20px auto;
+      overflow: hidden;
+      background-color: #003;
+    }
+    .div-con .grid li {
+      list-style: none;
+      float: left;
+      -webkit-background-size: cover;
+      background-size: cover;
+    }
+    .div-con .grid li.bg0 {
+      background-image: url('imgs/1.jpg');
+    }
+    .div-con .grid li.bg1 {
+      background-image: url('imgs/2.jpg');
+    }
+    .div-con .grid li.bg2 {
+      background-image: url('imgs/3.jpg');
+
+    }
+    .div-con .grid li.bg3 {
+      background-image: url('imgs/4.jpg');
+    }
+    .div-con .grid li.bg4 {
+      background-image: url('imgs/5.jpg');
+    }
+    .div-con .grid li.bg5 {
+      background-image: url('imgs/6.jpg');
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">row col interchange demo</h1>
+    <h1>（行列互换 - 天天爱消除）</h1>
+    <ul class="grid" id="grid"></ul>
+  </div>
+
+  <script>
+    var gridEl = document.getElementById('grid');
+    var allGridCellEl = gridEl.getElementsByTagName('li');
+    var gridSize = 50; // 网格单元格大小
+    var gridNum = 7; // n*n的网格
+    var gridLen = gridNum * gridNum; // 单元格总个数
+
+    var rowColInterchangeDemo = {
+      init () {
+        this.createGrid();
+        this.findEl();
+      },
+      createGrid () {
+        gridEl.style.width = gridNum * (gridSize + 1) + 'px';
+        // 动态生成li 
+        for (let i=0; i<gridLen; i++) {
+          let cellEl = document.createElement('li');
+          cellEl.style.width = gridSize + 'px';
+          cellEl.style.height = gridSize + 'px';
+          cellEl.className = 'bg' + Math.floor(Math.random()*6);
+          gridEl.appendChild(cellEl);
+        }
+      },
+      // 行列互换
+      changeXY (arr, num) {
+        let newArr = [];
+        let iNow = 0;
+
+        // 递归
+        (function () {
+          if (num == iNow) {
+            return;
+          }
+          for (let i=0; i<arr.length; i++) {
+            if (i%num == iNow) {
+              newArr.push(arr[i]);
+            }
+          }
+          iNow++;
+          arguments.callee(); // 找到当前函数,再次执行，实现递归
+        })()
+        
+        return newArr;
+      },
+      // 寻找相邻的3个或以上
+      findEl () {
+        result = [];
+
+        getArr(allGridCellEl);
+        getArr(this.changeXY(allGridCellEl, gridNum));
+        //console.log(result);
+
+        for (let i=0; i<allGridCellEl.length; i++) {
+          allGridCellEl[i].style.opacity = 0.5;
+        }
+
+        for (let i=0; i<result.length; i++) {
+          result[i].style.opacity = 1;
+        }
+
+        // 得到满足条件的相邻的元素
+        function getArr (allGridCellEl) {
+          let iNum = 0;
+          let prevEl = allGridCellEl[0];
+          for (let i=0; i<allGridCellEl.length; i++) {
+            // 类名相等，不是第一列
+            if (prevEl.className == allGridCellEl[i].className && i%gridNum!=0) {
+              iNum++;
+            } else {
+              // iNum -> 2
+              if (iNum >= 2) { // 有3个相邻的
+                for (let j=0; j<=iNum; j++) {
+                  // j -> 0 1 2
+                  // i -> 6
+                  // allGridCellEl[3/4/5] 
+                  if (noSame(allGridCellEl[(i-1)-j])) {
+                    result.unshift(allGridCellEl[(i-1)-j])
+                  }
+                }
+              }
+              iNum = 0;
+            }
+            prevEl = allGridCellEl[i];
+          }
+        }
+
+        // 去重判断
+        function noSame (el) {
+          for (let i=0; i<result.length; i++) {
+            if (result[i] == el) {
+              return false;
+            }
+          }
+          return true;
+        }
+      }   
+    }
+    rowColInterchangeDemo.init();
+  </script>
+</body>
+</html>

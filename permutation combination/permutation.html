@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>permutation（排列）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .con {
+      margin: 10px auto;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">permutation （排列）</h1>
+    <p class="desc">从m个数中取出n（m<=n）个，需要按照顺序排列，一共有多少种情况</p>
+    <div id="con" class="con"></div>
+  </div>
+
+  <script>
+    var arr = ['A', 'B', 'C', 'D'];
+
+    var permutation = {
+      init () {
+        //console.log(this.show(arr, 1)); // 4个值取3个排列：24
+        console.log(this.A(arr.length, 3))
+        document.getElementById('con').innerHTML = arr + ': 取出3个的结果：<br/>' + this.show(arr, 3);
+      },
+      // 程序实现：树形，统计叶子节点的个数
+      show (arr, num) {
+        let resultNum = 0;
+        let resultArr = [];
+        let iNow = 1; // 起始层次
+        
+        if (num==1) { // 取出一个
+          arr.push(result.length)
+          return arr; 
+        } 
+
+        change(arr, iNow+1, ''); // i=iNow: 取出下一层, '':组合
+        resultArr.push(resultNum);
+        return resultArr;
+
+        // 循环 + 递归
+        function change(arr, iNow, str) {
+          for (let i=0; i<arr.length; i++) {
+            let result = arr.concat(); // 对象，不产生引用关系，复制
+            let strClone = str; // 不影响下一次循环
+            strClone += result.splice(i, 1); // 将当前元素取出
+            if (iNow == num) { // 结束
+              resultNum += result.length;
+              for (let j=0; j<result.length; j++) {
+                resultArr.push(strClone + result[j]);
+              }
+            } else { // 递归，取出下一层
+              change(result, iNow+1, strClone); 
+            }
+          }
+        }
+      },
+      // 数学公式实现: A(m, n) = m的阶乘 / （m-n）的阶乘，0 的阶乘为1
+      A (m, n) {
+        return f(m) / f(m-n);
+
+        // 阶乘
+        function f(num) {
+          if (num<=1) {
+            return 1;
+          }
+          return num*f(num-1);
+        }
+      }
+    }
+    permutation.init();
+  </script>
+</body>
+</html>

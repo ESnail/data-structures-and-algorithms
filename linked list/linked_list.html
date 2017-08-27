@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>linked list (链表)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .con {
+      margin: 10px auto;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">linked list (链表)</h1>
+
+    <div id="con" class="con">
+      
+    </div>
+  </div>
+
+  <script>
+    function Node(el) {
+      this.el = el;
+      this.next = null;
+    }
+
+    function LinkedList () {
+      this.head = new Node('head');
+    }
+    
+    LinkedList.prototype.findCurrNode = function (currEl) {
+      let currNode = this.head;
+      while (currNode.el != currEl ) {
+        currNode = currNode.next;
+      }
+      return currNode;
+    }
+    
+    LinkedList.prototype.findPrevNode = function (currEl) {
+      let currNode = this.head;
+      while (currNode != null && currNode.next.el != currEl) {
+        currNode = currNode.next;
+      }
+      return currNode;
+    }
+
+    // 增加一个，newEl的next指向currItem的next, currItem的next指向newEl
+    LinkedList.prototype.insert = function (newEl, currItem) {
+      let newNode = new Node(newEl);
+      let currNode = this.findCurrNode(currItem);
+      newNode.next = currNode.next;
+      currNode.next = newNode;
+    }
+
+    // 删除一个，找到removeEl的前一个，前一个的next直接指向removeEl的next
+    LinkedList.prototype.remove = function (removeEl) {
+      let prevNode = this.findPrevNode(removeEl);
+      let removeNode = this.findCurrNode(removeEl);
+      prevNode.next = removeNode.next;
+    }
+
+    LinkedList.prototype.display = function () {
+      let currNode = this.head;
+      let result = [];
+      while (currNode.next != null) {
+        result.push(currNode.next.el);
+        currNode = currNode.next;
+      }
+      return result;
+    }
+
+    var obj = new LinkedList();
+    console.log(obj.findCurrNode('head'));
+    obj.insert('a', 'head'); // 在head后面添加a
+    obj.insert('b', 'a'); // 在b后面添加a
+    obj.insert('c', 'b');
+    obj.insert('d', 'a');
+    console.log(obj.findCurrNode('head'));
+    console.log(obj.display());
+    obj.remove('b');
+    console.log(obj.display());
+  </script>
+</body>
+</html>

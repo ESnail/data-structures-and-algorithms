@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>row col interchange（行列互换）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .grid {
+      margin: 20px auto;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      border-right: 0;
+      border-bottom: 0;
+    }
+    .div-con .grid li {
+      list-style: none;
+      float: left;
+      border: 1px solid #ddd;
+      border-left: 0;
+      border-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">row col interchange（行列互换 - 天天爱消除）</h1>
+    <ul class="grid" id="grid"></ul>
+    <button id="btn">互换</button>
+  </div>
+
+  <script>
+    var gridEl = document.getElementById('grid');
+    var allGridCellEl = gridEl.getElementsByTagName('li');
+    var gridSize = 50; // 网格单元格大小
+    var gridNum = 7; // n*n的网格
+    var gridLen = gridNum * gridNum; // 单元格总个数
+    var arr = []; // 原数组
+
+    var rowColInterchage = {
+      init () {
+        this.createGrid();
+        //arr = this.changeXY(arr, gridNum);
+        // this.renderNewArr();
+        let _this = this;
+        let btnEl = document.getElementById('btn');
+        btn.onclick = function () {
+          arr = _this.changeXY(arr, gridNum);
+          _this.renderNewArr();
+        }
+      },
+      createGrid () {
+        gridEl.style.width = gridNum * (gridSize + 1) + 'px';
+        // 动态生成li 
+        for (let i=0; i<gridLen; i++) {
+          let cellEl = document.createElement('li');
+          cellEl.style.width = gridSize + 'px';
+          cellEl.style.height = gridSize + 'px';
+          cellEl.innerHTML = i;
+          arr.push(i);
+          gridEl.appendChild(cellEl);
+        }
+      },
+      // 行列互换
+      changeXY (arr, num) {
+        let newArr = [];
+        let iNow = 0;
+
+        // 递归
+        (function () {
+          if (num == iNow) {
+            return;
+          }
+          for (let i=0; i<arr.length; i++) {
+            if (i%num == iNow) {
+              newArr.push(arr[i]);
+            }
+          }
+          iNow++;
+          arguments.callee(); // 找到当前函数,再次执行，实现递归
+        })()
+        
+        return newArr;
+      },
+      // 渲染行列互换后的数组到dom上
+      renderNewArr () {
+        for (let i=0; i<allGridCellEl.length; i++) {
+          allGridCellEl[i].innerHTML = arr[i];
+        }
+      }
+    }
+    rowColInterchage.init();
+  </script>
+</body>
+</html>

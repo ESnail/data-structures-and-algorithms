@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>eight queen（八皇后）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .grid {
+      margin: 10px auto;
+      overflow: hidden;
+      background: url('imgs/bg.jpg');
+      background-size: cover;
+      border: 1px solid #ddd;
+      border-right: 0;
+      border-bottom: 0;
+    }
+    .div-con .grid li {
+      list-style: none;
+      float: left;
+      background-size: cover;
+      border: 1px solid #ddd;
+      border-left: 0;
+      border-top: 0;
+    }
+    .div-con .grid li.active {
+      animation: .5s infinite linear flicker;
+      -webkit-animation: .5s infinite linear flicker;
+    }
+    @keyframes flicker {
+      0% { opacity: .1; }
+      50% { opacity: 1; }
+      100% { opacity: .1; }
+    } 
+    @-webkit-keyframes flicker {
+      0% { opacity: .1; }
+      50% { opacity: 1; }
+      100% { opacity: .1; }
+    } 
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">eight queen - 八皇后</h1>
+    <ul class="grid" id="grid"></ul>
+  </div>
+
+  <script>
+    var gridEl = document.getElementById('grid');
+    var allGridCellEl = gridEl.getElementsByTagName('li');
+    var gridSize = 50; // 网格单元格大小
+    var num = 8; // n*n的网格
+    var iCount = 0; // 统计一共有多少中情况
+    var posArr = []; // 记录每一种情况的位置
+    var postArrAll = []; // 记录所有情况的位置
+
+    var eightQueen = {
+      init () {
+        this.createGrid();
+        this.setQueen(0); // 第一个棋子
+        //console.log(iCount);
+        //console.log(postArrAll);
+        this.showImg();
+      },
+      createGrid () {
+        let len = num * num;
+        gridEl.style.width = num * (gridSize + 1) + 'px';
+        // 动态生成li 
+        for (let i=0; i<len; i++) {
+          let cellEl = document.createElement('li');
+          cellEl.style.width = gridSize + 'px';
+          cellEl.style.height = gridSize + 'px';
+          // 设置初始索引值
+          cellEl.index = -1;
+          //cellEl.innerHTML = cellEl.index;
+          gridEl.appendChild(cellEl);
+        }
+
+        // 设置坐标
+        for (let i=0; i<num; i++) {
+          for (let j=0; j<num; j++) {
+            allGridCellEl[i*num+j].x = j;
+            allGridCellEl[i*num+j].y = i;
+            //allGridCellEl[i*num+j].innerHTML = j + ',' + i;
+          }
+        }
+      },
+      setQueen (iQueen) {
+        if (iQueen == num) {
+          postArrAll.push(posArr.concat()); // 复制每一种，对象
+          iCount++;
+          return;
+        }
+
+        for (let i=0; i<num; i++) {
+          if (allGridCellEl[iQueen*num + i].index == -1) {
+            allGridCellEl[iQueen*num + i].index = iQueen;
+            ///allGridCellEl[iQueen*num + i].innerHTML = iQueen;
+            // 出现一种情况，就记录
+            posArr.push(allGridCellEl[iQueen*num+i]);
+
+            let x = allGridCellEl[iQueen*num+i].x;
+            let y = allGridCellEl[iQueen*num+i].y;
+            // 排除
+            for (let j=0; j<allGridCellEl.length; j++) {
+              if (allGridCellEl[j].index == -1 && (allGridCellEl[j].x==x || allGridCellEl[j].y==y || allGridCellEl[j].x+allGridCellEl[j].y==x+y || allGridCellEl[j].x-allGridCellEl[j].y==x-y)) {
+                allGridCellEl[j].index = iQueen;
+                //allGridCellEl[j].innerHTML = iQueen;
+              }
+            }
+
+            this.setQueen(iQueen + 1); // 下一个棋子
+
+            // 回溯
+            posArr.pop(); // 把不需要的点（回溯的点）去除
+            for (let k=0; k<allGridCellEl.length; k++) {
+              if (allGridCellEl[k].index == iQueen) {
+                allGridCellEl[k].index = -1;
+              }
+            }
+          }
+        }
+      },
+      showImg () {
+        change();
+        setInterval(change, 2000);
+
+        function change () {
+          // 还原
+          for (let i=0; i<allGridCellEl.length; i++) {
+            allGridCellEl[i].style.backgroundImage = '';
+            allGridCellEl[i].className = '';
+          }
+
+          // 获取随机一种情况
+          let randomPosArr = postArrAll[Math.floor(postArrAll.length*Math.random())];
+          for (let i=0; i<randomPosArr.length; i++) {
+            randomPosArr[i].style.backgroundImage = 'url("imgs/'+ Math.floor((Math.random()*15 +1)) +'.jpg")';
+            randomPosArr[i].className = 'active';
+            // 闪烁延时，不同时闪烁
+            randomPosArr[i].style.animationDelay = -Math.random()*2 + 's';
+            randomPosArr[i].style.webkitAnimationDelay = -Math.random()*2 + 's';
+          }
+        }
+      }
+    }
+    eightQueen.init();
+  </script>
+</body>
+</html>

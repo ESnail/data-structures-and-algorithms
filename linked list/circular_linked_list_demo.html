@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>circular linked list demo (循环链表 demo: 约瑟夫环)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .div-con {
+      margin: 30px auto;
+      text-align: center;
+    }
+    .div-con .btn {
+      padding: 3px 5px;
+    }
+    .div-con .con {
+      margin: 10px auto;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="div-con">
+    <h1 class="title">circular linked list demo (循环链表 demo: 约瑟夫环)</h1>
+
+    <div id="con" class="con">
+      
+    </div>
+    <button id="btn">显示答案</button>
+    <div class="con" id="result"></div>
+  </div>
+
+  <script>
+    function Node(el) {
+      this.el = el;
+      this.next = null;
+    }
+
+    function LinkedList () {
+      this.head = new Node('head');
+      this.head.next = this.head;
+      this.length = 0;
+    }
+    
+    LinkedList.prototype.findCurrNode = function (currEl) {
+      let currNode = this.head;
+      while (currNode.el != currEl ) {
+        currNode = currNode.next;
+      }
+      return currNode;
+    }
+    
+    LinkedList.prototype.findPrevNode = function (currEl) {
+      let currNode = this.head;
+      while (currNode != null && currNode.next.el != currEl) {
+        currNode = currNode.next;
+      }
+      return currNode;
+    }
+
+    // 增加一个，newEl的next指向currItem的next, currItem的next指向newEl
+    LinkedList.prototype.insert = function (newEl, currItem) {
+      let newNode = new Node(newEl);
+      let currNode = this.findCurrNode(currItem);
+      newNode.next = currNode.next;
+      currNode.next = newNode;
+      this.length++;
+    }
+
+    // 删除一个，找到removeEl的前一个，前一个的next直接指向removeEl的next
+    LinkedList.prototype.remove = function (removeEl) {
+      let prevNode = this.findPrevNode(removeEl);
+      let removeNode = this.findCurrNode(removeEl);
+      prevNode.next = removeNode.next;
+      this.length--;
+    }
+
+    LinkedList.prototype.display = function () {
+      let currNode = this.head;
+      let result = [];
+      while (currNode.next != null && currNode.next.el != 'head') {
+        result.push(currNode.next.el);
+        currNode = currNode.next;
+      }
+      return result;
+    }
+
+    function killGame (total, step) {
+      let people = new LinkedList();
+      people.insert(1, 'head');
+      for (let i=1; i<total; i++) {
+        people.insert(i+1, i);
+      }
+      console.log(people.display());
+      let conHtml = people.display();
+      let iNow = 0;
+      let dir = 'head';
+
+      whileFn();
+      console.log('幸存的位置是：' + people.display());
+      document.getElementById('con').innerHTML = total +'个人，所站位置依次是：' +conHtml+ '<br/>每隔'+ step + '个杀死一个人，<br/>幸存的位置是：?';
+      document.getElementById('btn').onclick = function () {
+        document.getElementById('result').innerHTML = '幸存的位置是：' + people.display();
+      }
+
+      function whileFn() {
+        if (people.length < step) {
+          return;
+        }
+        iNow++;
+        dir = people.findCurrNode(dir).next.el;
+
+        if (dir == 'head') {
+          dir = people.findCurrNode(dir).next.el;
+        }
+
+        if (iNow == step) {
+          // 删除一个，dir改变，为上一个的dir
+          let removeDir = dir;
+          dir = people.findPrevNode(dir).el;
+          people.remove(removeDir);
+          iNow = 0;
+        }
+        whileFn();
+      }
+    }
+
+    var total = 41;
+    var step = 3;
+    killGame(total, step);
+  </script>
+</body>
+</html>
